@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>CIRUS</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body style="font-family:Arial;padding:20px">
+
+<h1>CIRUS</h1>
+
+<input id="msg" placeholder="Mesaj yaz">
+<button onclick="send()">Gönder</button>
+
+<p id="out"></p>
+
+<script>
+
+function send(){
+
+let text = document.getElementById("msg").value
+
+if(text==""){
+document.getElementById("out").innerText="Mesaj yaz"
+return
+}
+
+if(text.toLowerCase()=="merhaba"){
+document.getElementById("out").innerText="Merhaba Yusuf"
+return
+}
+
+document.getElementById("out").innerText="CIRUS çalışıyor"
+
+}
+
+</script>
+
+</body>
+</html>
