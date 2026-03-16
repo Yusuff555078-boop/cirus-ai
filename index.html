@@ -1,110 +1,612 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>CIRUS</title>
+  <meta name="theme-color" content="#0f1117" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="CIRUS" />
   <style>
-    body {
-      margin: 0;
-      padding: 20px;
-      font-family: Arial, sans-serif;
-      background: #0f1117;
-      color: white;
+    *{
+      box-sizing:border-box;
+      -webkit-tap-highlight-color:transparent;
     }
 
-    h1 {
-      margin-top: 0;
+    body{
+      margin:0;
+      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Arial,sans-serif;
+      background:linear-gradient(180deg,#0b0d12 0%, #0f1117 55%, #111827 100%);
+      color:#fff;
+      min-height:100vh;
     }
 
-    #chat {
-      background: #1a1d26;
-      border-radius: 12px;
-      padding: 15px;
-      min-height: 300px;
-      white-space: pre-wrap;
-      margin-bottom: 15px;
-      overflow-y: auto;
+    .app{
+      max-width:430px;
+      margin:0 auto;
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+      padding:14px 14px calc(16px + env(safe-area-inset-bottom));
     }
 
-    .row {
-      display: flex;
-      gap: 10px;
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:10px 4px 14px 4px;
     }
 
-    #msg {
-      flex: 1;
-      padding: 12px;
-      border: none;
-      border-radius: 10px;
-      font-size: 16px;
+    .logo{
+      font-size:28px;
+      font-weight:800;
+      letter-spacing:1px;
     }
 
-    button {
-      padding: 12px 16px;
-      border: none;
-      border-radius: 10px;
-      background: #4a6cff;
-      color: white;
-      font-size: 16px;
+    .status{
+      font-size:12px;
+      padding:7px 10px;
+      border-radius:999px;
+      background:rgba(74,108,255,0.14);
+      color:#9db5ff;
+      border:1px solid rgba(74,108,255,0.24);
+    }
+
+    .screen{
+      display:none;
+      flex:1;
+      min-height:0;
+    }
+
+    .screen.active{
+      display:flex;
+      flex-direction:column;
+      flex:1;
+      min-height:0;
+    }
+
+    .card{
+      background:rgba(255,255,255,0.05);
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:22px;
+      backdrop-filter:blur(10px);
+      box-shadow:0 10px 30px rgba(0,0,0,0.25);
+    }
+
+    .chat-box{
+      flex:1;
+      min-height:0;
+      overflow-y:auto;
+      padding:14px;
+    }
+
+    .msg{
+      display:flex;
+      flex-direction:column;
+      margin-bottom:14px;
+    }
+
+    .msg.you{
+      align-items:flex-end;
+    }
+
+    .msg.cirus{
+      align-items:flex-start;
+    }
+
+    .msg .label{
+      font-size:11px;
+      opacity:.65;
+      margin-bottom:4px;
+      padding:0 6px;
+    }
+
+    .bubble{
+      max-width:86%;
+      padding:12px 14px;
+      border-radius:18px;
+      line-height:1.45;
+      white-space:pre-wrap;
+      word-break:break-word;
+      font-size:15px;
+    }
+
+    .you .bubble{
+      background:linear-gradient(135deg,#4a6cff 0%, #6d5cff 100%);
+      color:#fff;
+      border-bottom-right-radius:6px;
+      box-shadow:0 6px 20px rgba(74,108,255,.35);
+    }
+
+    .cirus .bubble{
+      background:rgba(255,255,255,0.08);
+      color:#f3f5ff;
+      border:1px solid rgba(255,255,255,0.08);
+      border-bottom-left-radius:6px;
+    }
+
+    .composer{
+      display:flex;
+      gap:10px;
+      margin-top:12px;
+      padding:10px;
+      border-radius:20px;
+      background:rgba(255,255,255,0.05);
+      border:1px solid rgba(255,255,255,0.08);
+      backdrop-filter:blur(10px);
+    }
+
+    .composer input{
+      flex:1;
+      background:transparent;
+      border:none;
+      outline:none;
+      color:#fff;
+      font-size:16px;
+      padding:8px 6px;
+    }
+
+    .composer input::placeholder{
+      color:rgba(255,255,255,0.45);
+    }
+
+    .composer button,
+    .action-btn{
+      border:none;
+      outline:none;
+      background:linear-gradient(135deg,#4a6cff 0%, #6d5cff 100%);
+      color:#fff;
+      font-size:15px;
+      font-weight:600;
+      padding:12px 16px;
+      border-radius:16px;
+      box-shadow:0 6px 20px rgba(74,108,255,.35);
+    }
+
+    .section{
+      padding:14px;
+    }
+
+    .section-title{
+      font-size:18px;
+      font-weight:700;
+      margin-bottom:12px;
+    }
+
+    .profile-list{
+      display:grid;
+      gap:10px;
+    }
+
+    .profile-item{
+      background:rgba(255,255,255,0.04);
+      border:1px solid rgba(255,255,255,0.06);
+      border-radius:14px;
+      padding:12px;
+    }
+
+    .profile-item .k{
+      font-size:12px;
+      opacity:.65;
+      margin-bottom:4px;
+    }
+
+    .profile-item .v{
+      font-size:15px;
+      font-weight:600;
+      white-space:pre-wrap;
+    }
+
+    .empty{
+      opacity:.7;
+      font-size:14px;
+    }
+
+    .research-box{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+
+    .research-row{
+      display:flex;
+      gap:10px;
+    }
+
+    .research-row input{
+      flex:1;
+      padding:14px;
+      border:none;
+      border-radius:16px;
+      background:rgba(255,255,255,0.06);
+      color:#fff;
+      font-size:15px;
+      outline:none;
+    }
+
+    .research-output{
+      min-height:260px;
+      max-height:50vh;
+      overflow:auto;
+      white-space:pre-wrap;
+      line-height:1.5;
+      font-size:15px;
+      background:rgba(255,255,255,0.04);
+      border:1px solid rgba(255,255,255,0.06);
+      border-radius:18px;
+      padding:14px;
+    }
+
+    .small-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:12px;
+    }
+
+    .small-btn{
+      border:none;
+      background:rgba(255,255,255,0.08);
+      color:#fff;
+      border-radius:12px;
+      padding:10px 12px;
+      font-size:13px;
+    }
+
+    .bottom-nav{
+      margin-top:12px;
+      display:flex;
+      justify-content:space-around;
+      align-items:center;
+      padding:10px 8px calc(10px + env(safe-area-inset-bottom));
+      background:rgba(20,24,36,0.9);
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:20px;
+      backdrop-filter:blur(12px);
+    }
+
+    .nav-item{
+      flex:1;
+      text-align:center;
+      color:rgba(255,255,255,.65);
+      font-size:12px;
+      padding:8px 4px;
+      border-radius:14px;
+    }
+
+    .nav-item.active{
+      color:#fff;
+      background:rgba(74,108,255,0.18);
+    }
+
+    .nav-icon{
+      display:block;
+      font-size:18px;
+      margin-bottom:4px;
+    }
+
+    .hint{
+      font-size:12px;
+      opacity:.6;
+      margin-top:8px;
+      text-align:center;
     }
   </style>
 </head>
 <body>
+  <div class="app">
+    <div class="topbar">
+      <div class="logo">CIRUS</div>
+      <div class="status">AI Aktif</div>
+    </div>
 
-  <h1>CIRUS</h1>
+    <!-- CHAT -->
+    <div id="screen-chat" class="screen active">
+      <div id="chatBox" class="card chat-box"></div>
 
-  <div id="chat">Cirus: Hazırım Yusuf ✅</div>
+      <div class="composer">
+        <input id="msg" type="text" placeholder="Mesaj yaz..." />
+        <button id="sendBtn">Gönder</button>
+      </div>
 
-  <div class="row">
-    <input id="msg" type="text" placeholder="Mesaj yaz">
-    <button id="sendBtn">Gönder</button>
+      <div class="hint">CIRUS • özel yapay zeka</div>
+    </div>
+
+    <!-- PROFILE -->
+    <div id="screen-profile" class="screen">
+      <div class="card section">
+        <div class="section-title">Profil Hafızası</div>
+        <div id="profileList" class="profile-list"></div>
+        <div class="small-actions">
+          <button class="small-btn" id="showMemoryBtn">Hafızayı Göster</button>
+          <button class="small-btn" id="clearProfileBtn">Profili Temizle</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESEARCH -->
+    <div id="screen-research" class="screen">
+      <div class="card section research-box">
+        <div class="section-title">Araştırma</div>
+        <div class="research-row">
+          <input id="researchInput" type="text" placeholder="Bir konu yaz..." />
+          <button class="action-btn" id="researchBtn">Araştır</button>
+        </div>
+        <div id="researchOutput" class="research-output">Burada araştırma sonucu görünecek.</div>
+      </div>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <div class="bottom-nav">
+      <div class="nav-item active" data-screen="chat">
+        <span class="nav-icon">💬</span>
+        Chat
+      </div>
+      <div class="nav-item" data-screen="profile">
+        <span class="nav-icon">🧠</span>
+        Profil
+      </div>
+      <div class="nav-item" data-screen="research">
+        <span class="nav-icon">🔎</span>
+        Araştır
+      </div>
+    </div>
   </div>
 
   <script>
     const workerUrl = "https://cirus-worker.cirus-backend.workers.dev/";
 
-    async function sendMessage() {
-      const input = document.getElementById("msg");
-      const chat = document.getElementById("chat");
+    const chatBox = document.getElementById("chatBox");
+    const input = document.getElementById("msg");
+    const sendBtn = document.getElementById("sendBtn");
+
+    const profileList = document.getElementById("profileList");
+    const clearProfileBtn = document.getElementById("clearProfileBtn");
+    const showMemoryBtn = document.getElementById("showMemoryBtn");
+
+    const researchInput = document.getElementById("researchInput");
+    const researchBtn = document.getElementById("researchBtn");
+    const researchOutput = document.getElementById("researchOutput");
+
+    const navItems = document.querySelectorAll(".nav-item");
+    const screens = {
+      chat: document.getElementById("screen-chat"),
+      profile: document.getElementById("screen-profile"),
+      research: document.getElementById("screen-research")
+    };
+
+    let profile = JSON.parse(localStorage.getItem("cirus_profile") || "{}");
+    let history = JSON.parse(localStorage.getItem("cirus_history") || "[]");
+
+    function saveProfile(){
+      localStorage.setItem("cirus_profile", JSON.stringify(profile));
+    }
+
+    function saveHistory(){
+      localStorage.setItem("cirus_history", JSON.stringify(history));
+    }
+
+    function setScreen(name){
+      for(const key in screens){
+        screens[key].classList.remove("active");
+      }
+      screens[name].classList.add("active");
+
+      navItems.forEach(item=>{
+        item.classList.toggle("active", item.dataset.screen === name);
+      });
+
+      if(name === "profile"){
+        renderProfile();
+      }
+    }
+
+    navItems.forEach(item=>{
+      item.addEventListener("click", ()=>{
+        setScreen(item.dataset.screen);
+      });
+    });
+
+    function addMessage(type, text){
+      const wrapper = document.createElement("div");
+      wrapper.className = "msg " + type;
+
+      const label = document.createElement("div");
+      label.className = "label";
+      label.textContent = type === "you" ? "Sen" : "Cirus";
+
+      const bubble = document.createElement("div");
+      bubble.className = "bubble";
+      bubble.textContent = text;
+
+      wrapper.appendChild(label);
+      wrapper.appendChild(bubble);
+      chatBox.appendChild(wrapper);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function renderHistory(){
+      chatBox.innerHTML = "";
+      if(history.length === 0){
+        addMessage("cirus", "Hazırım Yusuf ✅");
+        return;
+      }
+
+      history.forEach(item=>{
+        addMessage("you", item.user);
+        addMessage("cirus", item.cirus);
+      });
+    }
+
+    function learn(text){
+      const lower = text.toLowerCase();
+
+      if(lower.includes("adım")){
+        const parts = text.split(/adım/i);
+        if(parts[1]) profile.name = parts[1].trim();
+      }
+
+      if(lower.includes("yaşım")){
+        const parts = text.split(/yaşım/i);
+        if(parts[1]) profile.age = parts[1].trim();
+      }
+
+      if(lower.includes("seviyorum")){
+        const parts = text.split(/seviyorum/i);
+        if(parts[1]) profile.likes = parts[1].trim();
+      }
+
+      if(lower.includes("mesleğim")){
+        const parts = text.split(/mesleğim/i);
+        if(parts[1]) profile.job = parts[1].trim();
+      }
+
+      if(lower.includes("hedefim")){
+        const parts = text.split(/hedefim/i);
+        if(parts[1]) profile.goal = parts[1].trim();
+      }
+
+      if(lower.includes("istanbul") || lower.includes("sarıyer") || lower.includes("beylikdüzü") || lower.includes("büyükçekmece")){
+        profile.location = text.trim();
+      }
+
+      saveProfile();
+    }
+
+    function renderProfile(){
+      profileList.innerHTML = "";
+
+      const keys = [
+        ["Ad", profile.name],
+        ["Yaş", profile.age],
+        ["Sevdiği şey", profile.likes],
+        ["Meslek", profile.job],
+        ["Hedef", profile.goal],
+        ["Konum", profile.location]
+      ];
+
+      const filled = keys.filter(item => item[1]);
+
+      if(filled.length === 0){
+        profileList.innerHTML = '<div class="empty">Henüz profil bilgisi yok. Örnek: "Adım Yusuf", "Yaşım 21", "Kahve seviyorum"</div>';
+        return;
+      }
+
+      filled.forEach(([k, v])=>{
+        const item = document.createElement("div");
+        item.className = "profile-item";
+        item.innerHTML = '<div class="k">' + k + '</div><div class="v">' + v + '</div>';
+        profileList.appendChild(item);
+      });
+    }
+
+    function buildProfileBlock(){
+      let lines = [];
+      if(profile.name) lines.push("Ad: " + profile.name);
+      if(profile.age) lines.push("Yaş: " + profile.age);
+      if(profile.likes) lines.push("Sevdiği şey: " + profile.likes);
+      if(profile.job) lines.push("Meslek: " + profile.job);
+      if(profile.goal) lines.push("Hedef: " + profile.goal);
+      if(profile.location) lines.push("Konum: " + profile.location);
+
+      if(lines.length === 0) return "";
+      return "\n\n[Profil Hafızası]\n" + lines.join("\n");
+    }
+
+    async function sendMessage(){
       const text = input.value.trim();
+      if(!text) return;
 
-      if (!text) return;
-
-      chat.textContent += "\n\nSen: " + text;
+      addMessage("you", text);
+      learn(text);
       input.value = "";
 
-      try {
+      addMessage("cirus", "Yazıyor...");
+
+      try{
         const response = await fetch(workerUrl, {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify({ text: text })
+          body: JSON.stringify({ text })
         });
 
         const data = await response.json();
 
-        if (data.reply) {
-          chat.textContent += "\n\nCirus: " + data.reply;
-        } else {
-          chat.textContent += "\n\nCirus: Cevap alınamadı.";
-        }
-      } catch (error) {
-        chat.textContent += "\n\nCirus: Bağlantı hatası oluştu.";
-      }
+        chatBox.removeChild(chatBox.lastChild);
 
-      chat.scrollTop = chat.scrollHeight;
+        let reply = data.reply || "Cevap alınamadı.";
+        reply += buildProfileBlock();
+
+        addMessage("cirus", reply);
+
+        history.push({
+          user: text,
+          cirus: reply,
+          ts: Date.now()
+        });
+        saveHistory();
+
+      }catch(error){
+        chatBox.removeChild(chatBox.lastChild);
+        addMessage("cirus", "Bağlantı hatası oluştu.");
+      }
     }
 
-    document.getElementById("sendBtn").addEventListener("click", sendMessage);
+    async function runResearch(){
+      const q = researchInput.value.trim();
+      if(!q) return;
 
-    document.getElementById("msg").addEventListener("keydown", function(event) {
-      if (event.key === "Enter") {
+      researchOutput.textContent = "Araştırılıyor...";
+
+      try{
+        const response = await fetch(workerUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            text: "Şu konuyu araştır ve Türkçe, kısa ama faydalı özet ver: " + q
+          })
+        });
+
+        const data = await response.json();
+        researchOutput.textContent = data.reply || "Araştırma sonucu alınamadı.";
+      }catch(error){
+        researchOutput.textContent = "Araştırma sırasında bağlantı hatası oluştu.";
+      }
+    }
+
+    clearProfileBtn.addEventListener("click", ()=>{
+      profile = {};
+      saveProfile();
+      renderProfile();
+    });
+
+    showMemoryBtn.addEventListener("click", ()=>{
+      renderProfile();
+    });
+
+    sendBtn.addEventListener("click", sendMessage);
+
+    input.addEventListener("keydown", function(e){
+      if(e.key === "Enter"){
         sendMessage();
       }
     });
-  </script>
 
+    researchBtn.addEventListener("click", runResearch);
+
+    researchInput.addEventListener("keydown", function(e){
+      if(e.key === "Enter"){
+        runResearch();
+      }
+    });
+
+    renderHistory();
+    renderProfile();
+  </script>
 </body>
 </html>
