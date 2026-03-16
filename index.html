@@ -6,7 +6,6 @@
 <title>CIRUS</title>
 
 <style>
-
 body{
 margin:0;
 font-family:-apple-system,Arial;
@@ -32,6 +31,7 @@ font-weight:700;
 flex:1;
 overflow:auto;
 padding:10px;
+white-space:pre-wrap;
 }
 
 .input{
@@ -66,7 +66,6 @@ padding:12px 0;
 text-align:center;
 font-size:14px;
 }
-
 </style>
 
 </head>
@@ -89,56 +88,85 @@ Cirus: Hazırım Yusuf ✅
 </div>
 
 <div class="menu">
-
-<div>
-💬<br>Chat
-</div>
-
-<div>
-🧠<br>Profil
-</div>
-
-<div>
-🔎<br>Araştır
-</div>
-
+<div>💬<br>Chat</div>
+<div>🧠<br>Profil</div>
+<div>🔎<br>Araştır</div>
 </div>
 
 </div>
 
 <script>
+const worker = "https://cirus-worker.cirus-backend.workers.dev/";
 
-const worker="https://cirus-worker.cirus-backend.workers.dev/";
+let profile = {};
+
+function learn(text){
+  let t = text.toLowerCase();
+
+  if(t.includes("adım")){
+    let parts = text.split("adım");
+    if(parts[1]){
+      profile.name = parts[1].trim();
+    }
+  }
+
+  if(t.includes("yaşım")){
+    let parts = text.split("yaşım");
+    if(parts[1]){
+      profile.age = parts[1].trim();
+    }
+  }
+
+  if(t.includes("seviyorum")){
+    let parts = text.split("seviyorum");
+    if(parts[1]){
+      profile.likes = parts[1].trim();
+    }
+  }
+}
 
 async function send(){
 
-let input=document.getElementById("msg")
-let chat=document.getElementById("chat")
+  let input = document.getElementById("msg");
+  let chat = document.getElementById("chat");
 
-let text=input.value
+  let text = input.value.trim();
 
-if(!text) return
+  if(!text) return;
 
-chat.innerText+="\n\nSen: "+text
+  chat.innerText += "\n\nSen: " + text;
 
-input.value=""
+  learn(text);
 
-let r=await fetch(worker,{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({text:text})
-})
+  input.value = "";
 
-let data=await r.json()
+  try{
+    let r = await fetch(worker,{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify({text:text})
+    });
 
-chat.innerText+="\n\nCirus: "+data.reply
+    let data = await r.json();
 
-chat.scrollTop=chat.scrollHeight
+    let reply = data.reply || "Cevap alınamadı.";
 
+    if(profile.name || profile.age || profile.likes){
+      reply += "\n\n[Profil Hafızası]";
+      if(profile.name) reply += "\nAd: " + profile.name;
+      if(profile.age) reply += "\nYaş: " + profile.age;
+      if(profile.likes) reply += "\nSevdiği şey: " + profile.likes;
+    }
+
+    chat.innerText += "\n\nCirus: " + reply;
+  }catch(error){
+    chat.innerText += "\n\nCirus: Bağlantı hatası oluştu.";
+  }
+
+  chat.scrollTop = chat.scrollHeight;
 }
-
 </script>
 
 </body>
