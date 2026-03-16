@@ -1,245 +1,145 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CIRUS</title>
-  <meta name="theme-color" content="#0f1117">
-  <style>
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CIRUS</title>
 
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Arial, sans-serif;
-      background: linear-gradient(180deg, #0b0d12 0%, #111622 100%);
-      color: white;
-      min-height: 100vh;
-    }
+<style>
 
-    .app {
-      max-width: 430px;
-      margin: 0 auto;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      padding: 16px;
-    }
+body{
+margin:0;
+font-family:-apple-system,Arial;
+background:#0f1117;
+color:white;
+}
 
-    .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 8px 4px 18px 4px;
-    }
+.container{
+max-width:430px;
+margin:auto;
+height:100vh;
+display:flex;
+flex-direction:column;
+}
 
-    .logo {
-      font-size: 28px;
-      font-weight: 800;
-      letter-spacing: 1px;
-    }
+.header{
+padding:16px;
+font-size:24px;
+font-weight:700;
+}
 
-    .status {
-      font-size: 12px;
-      color: #7CFFB2;
-      background: rgba(124,255,178,0.12);
-      border: 1px solid rgba(124,255,178,0.25);
-      padding: 6px 10px;
-      border-radius: 999px;
-    }
+.chat{
+flex:1;
+overflow:auto;
+padding:10px;
+}
 
-    .chat-box {
-      flex: 1;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 24px;
-      padding: 14px;
-      overflow-y: auto;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
-      min-height: 60vh;
-      max-height: 68vh;
-    }
+.input{
+display:flex;
+padding:10px;
+gap:8px;
+}
 
-    .msg {
-      margin-bottom: 14px;
-      display: flex;
-      flex-direction: column;
-    }
+input{
+flex:1;
+padding:12px;
+border-radius:10px;
+border:none;
+}
 
-    .msg.you {
-      align-items: flex-end;
-    }
+button{
+padding:12px;
+border:none;
+border-radius:10px;
+background:#4a6cff;
+color:white;
+}
 
-    .msg.cirus {
-      align-items: flex-start;
-    }
+.menu{
+display:flex;
+justify-content:space-around;
+background:#1a1d26;
+padding:12px 0;
+}
 
-    .label {
-      font-size: 11px;
-      opacity: 0.65;
-      margin-bottom: 4px;
-      padding: 0 6px;
-    }
+.menu div{
+text-align:center;
+font-size:14px;
+}
 
-    .bubble {
-      max-width: 85%;
-      padding: 12px 14px;
-      border-radius: 18px;
-      line-height: 1.4;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-      font-size: 15px;
-    }
+</style>
 
-    .you .bubble {
-      background: linear-gradient(135deg, #4a6cff 0%, #6d5cff 100%);
-      color: white;
-      border-bottom-right-radius: 6px;
-      box-shadow: 0 6px 20px rgba(74,108,255,0.35);
-    }
-
-    .cirus .bubble {
-      background: rgba(255,255,255,0.08);
-      color: #f3f5ff;
-      border: 1px solid rgba(255,255,255,0.08);
-      border-bottom-left-radius: 6px;
-    }
-
-    .composer {
-      margin-top: 14px;
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 20px;
-      padding: 10px;
-      backdrop-filter: blur(10px);
-    }
-
-    .composer input {
-      flex: 1;
-      background: transparent;
-      border: none;
-      outline: none;
-      color: white;
-      font-size: 16px;
-      padding: 8px 6px;
-    }
-
-    .composer input::placeholder {
-      color: rgba(255,255,255,0.45);
-    }
-
-    .composer button {
-      border: none;
-      outline: none;
-      background: linear-gradient(135deg, #4a6cff 0%, #6d5cff 100%);
-      color: white;
-      font-size: 15px;
-      font-weight: 600;
-      padding: 12px 16px;
-      border-radius: 16px;
-      box-shadow: 0 6px 20px rgba(74,108,255,0.35);
-    }
-
-    .bottom-note {
-      text-align: center;
-      font-size: 12px;
-      opacity: 0.5;
-      margin-top: 12px;
-    }
-  </style>
 </head>
+
 <body>
-  <div class="app">
-    <div class="topbar">
-      <div class="logo">CIRUS</div>
-      <div class="status">AI Aktif</div>
-    </div>
 
-    <div id="chat" class="chat-box">
-      <div class="msg cirus">
-        <div class="label">Cirus</div>
-        <div class="bubble">Hazırım Yusuf ✅</div>
-      </div>
-    </div>
+<div class="container">
 
-    <div class="composer">
-      <input id="msg" type="text" placeholder="Mesaj yaz...">
-      <button id="sendBtn">Gönder</button>
-    </div>
+<div class="header">
+CIRUS
+</div>
 
-    <div class="bottom-note">CIRUS • özel yapay zeka</div>
-  </div>
+<div id="chat" class="chat">
+Cirus: Hazırım Yusuf ✅
+</div>
 
-  <script>
-    const workerUrl = "https://cirus-worker.cirus-backend.workers.dev/";
-    const chat = document.getElementById("chat");
-    const input = document.getElementById("msg");
-    const sendBtn = document.getElementById("sendBtn");
+<div class="input">
+<input id="msg" placeholder="Mesaj yaz">
+<button onclick="send()">Gönder</button>
+</div>
 
-    function addMessage(type, text) {
-      const wrapper = document.createElement("div");
-      wrapper.className = "msg " + type;
+<div class="menu">
 
-      const label = document.createElement("div");
-      label.className = "label";
-      label.textContent = type === "you" ? "Sen" : "Cirus";
+<div>
+💬<br>Chat
+</div>
 
-      const bubble = document.createElement("div");
-      bubble.className = "bubble";
-      bubble.textContent = text;
+<div>
+🧠<br>Profil
+</div>
 
-      wrapper.appendChild(label);
-      wrapper.appendChild(bubble);
-      chat.appendChild(wrapper);
-      chat.scrollTop = chat.scrollHeight;
-    }
+<div>
+🔎<br>Araştır
+</div>
 
-    async function sendMessage() {
-      const text = input.value.trim();
-      if (!text) return;
+</div>
 
-      addMessage("you", text);
-      input.value = "";
+</div>
 
-      addMessage("cirus", "Yazıyor...");
+<script>
 
-      try {
-        const response = await fetch(workerUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ text })
-        });
+const worker="https://cirus-worker.cirus-backend.workers.dev/";
 
-        const data = await response.json();
+async function send(){
 
-        chat.removeChild(chat.lastChild);
+let input=document.getElementById("msg")
+let chat=document.getElementById("chat")
 
-        if (data.reply) {
-          addMessage("cirus", data.reply);
-        } else {
-          addMessage("cirus", "Cevap alınamadı.");
-        }
-      } catch (error) {
-        chat.removeChild(chat.lastChild);
-        addMessage("cirus", "Bağlantı hatası oluştu.");
-      }
-    }
+let text=input.value
 
-    sendBtn.addEventListener("click", sendMessage);
+if(!text) return
 
-    input.addEventListener("keydown", function(e) {
-      if (e.key === "Enter") {
-        sendMessage();
-      }
-    });
-  </script>
+chat.innerText+="\n\nSen: "+text
+
+input.value=""
+
+let r=await fetch(worker,{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({text:text})
+})
+
+let data=await r.json()
+
+chat.innerText+="\n\nCirus: "+data.reply
+
+chat.scrollTop=chat.scrollHeight
+
+}
+
+</script>
+
 </body>
 </html>
