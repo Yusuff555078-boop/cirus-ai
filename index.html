@@ -1,99 +1,177 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CIRUS</title>
+<meta name="theme-color" content="#0f1117">
+<style>
+body{
+margin:0;
+font-family:-apple-system,Arial,sans-serif;
+background:#0f1117;
+color:white;
+}
+
+.container{
+max-width:430px;
+margin:auto;
+min-height:100vh;
+display:flex;
+flex-direction:column;
+padding:16px;
+}
+
+.header{
+font-size:28px;
+font-weight:700;
+margin-bottom:16px;
+}
+
+.chat{
+flex:1;
+background:#1a1d26;
+border-radius:16px;
+padding:14px;
+min-height:60vh;
+white-space:pre-wrap;
+overflow-y:auto;
+margin-bottom:12px;
+}
+
+.input-area{
+display:flex;
+gap:8px;
+margin-bottom:12px;
+}
+
+input{
+flex:1;
+padding:12px;
+border:none;
+border-radius:12px;
+font-size:16px;
+}
+
+button{
+padding:12px 16px;
+border:none;
+border-radius:12px;
+background:#4a6cff;
+color:white;
+font-size:16px;
+}
+
+.menu{
+display:flex;
+justify-content:space-around;
+background:#1a1d26;
+border-radius:16px;
+padding:12px 0;
+font-size:14px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">CIRUS</div>
+
+  <div id="chat" class="chat">Cirus: Hazırım Yusuf ✅</div>
+
+  <div class="input-area">
+    <input id="msg" type="text" placeholder="Mesaj yaz">
+    <button id="sendBtn">Gönder</button>
+  </div>
+
+  <div class="menu">
+    <div>💬<br>Chat</div>
+    <div>🧠<br>Profil</div>
+    <div>🔎<br>Araştır</div>
+  </div>
+</div>
+
 <script>
-
 const worker = "https://cirus-worker.cirus-backend.workers.dev/";
+let profile = JSON.parse(localStorage.getItem("cirus_profile") || "{}");
 
-let profile = JSON.parse(localStorage.getItem("cirus_profile")) || {}
-
-function saveProfile(){
-localStorage.setItem("cirus_profile",JSON.stringify(profile))
+function saveProfile() {
+  localStorage.setItem("cirus_profile", JSON.stringify(profile));
 }
 
-function learn(text){
+function learn(text) {
+  let t = text.toLowerCase();
 
-let t=text.toLowerCase()
+  if (t.includes("adım")) {
+    let parts = text.split("adım");
+    if (parts[1]) {
+      profile.name = parts[1].trim();
+    }
+  }
 
-if(t.includes("adım")){
-let p=text.split("adım")[1]
-if(p){
-profile.name=p.trim()
-}
-}
+  if (t.includes("yaşım")) {
+    let parts = text.split("yaşım");
+    if (parts[1]) {
+      profile.age = parts[1].trim();
+    }
+  }
 
-if(t.includes("yaşım")){
-let p=text.split("yaşım")[1]
-if(p){
-profile.age=p.trim()
-}
-}
+  if (t.includes("seviyorum")) {
+    let parts = text.split("seviyorum");
+    if (parts[1]) {
+      profile.likes = parts[1].trim();
+    }
+  }
 
-if(t.includes("seviyorum")){
-let p=text.split("seviyorum")[1]
-if(p){
-profile.likes=p.trim()
-}
-}
-
-saveProfile()
-
+  saveProfile();
 }
 
-async function send(){
+async function sendMessage() {
+  const input = document.getElementById("msg");
+  const chat = document.getElementById("chat");
+  const text = input.value.trim();
 
-let input=document.getElementById("msg")
-let chat=document.getElementById("chat")
+  if (!text) return;
 
-let text=input.value.trim()
+  chat.innerText += "\n\nSen: " + text;
+  learn(text);
+  input.value = "";
 
-if(!text) return
+  try {
+    const r = await fetch(worker, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ text: text })
+    });
 
-chat.innerText+="\n\nSen: "+text
+    const data = await r.json();
+    let reply = data.reply || "Cevap alınamadı.";
 
-learn(text)
+    if (profile.name || profile.age || profile.likes) {
+      reply += "\n\n[Profil Hafızası]";
+      if (profile.name) reply += "\nAd: " + profile.name;
+      if (profile.age) reply += "\nYaş: " + profile.age;
+      if (profile.likes) reply += "\nSevdiği şey: " + profile.likes;
+    }
 
-input.value=""
+    chat.innerText += "\n\nCirus: " + reply;
+  } catch (e) {
+    chat.innerText += "\n\nCirus: Bağlantı hatası oluştu.";
+  }
 
-try{
-
-let r=await fetch(worker,{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({text:text})
-})
-
-let data=await r.json()
-
-let reply=data.reply || "Cevap alınamadı."
-
-if(profile.name || profile.age || profile.likes){
-
-reply+="\n\n[Profil Hafızası]"
-
-if(profile.name){
-reply+="\nAd: "+profile.name
+  chat.scrollTop = chat.scrollHeight;
 }
 
-if(profile.age){
-reply+="\nYaş: "+profile.age
-}
+document.getElementById("sendBtn").addEventListener("click", sendMessage);
 
-if(profile.likes){
-reply+="\nSevdiği şey: "+profile.likes
-}
-
-}
-
-chat.innerText+="\n\nCirus: "+reply
-
-}catch(e){
-
-chat.innerText+="\n\nCirus: Bağlantı hatası."
-
-}
-
-chat.scrollTop=chat.scrollHeight
-
-}
-
+document.getElementById("msg").addEventListener("keydown", function(e) {
+  if (e.key === "Enter") {
+    sendMessage();
+  }
+});
 </script>
+
+</body>
+</html>
